@@ -1,0 +1,867 @@
+<html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三角洲行动租号估价系统</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <!-- 统一的 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2D3E36', // 军绿色主色调
+                        secondary: '#D4AF37', // 沙漠金辅助色
+                        accent: '#8B4513', // 深褐色强调色
+                        dark: '#1A1A1A', // 深色背景
+                        light: '#F5F5DC', // 浅色文本
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    backgroundImage: {
+                        'camouflage': "url('https://p3-doubao-search-sign.byteimg.com/ecom-shop-material/rigyfuqt_m_9da27d422234d216227d2579f588a3a1_sx_594822_www800-800~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1780026276&x-signature=OvpTWwe1%2BCSieJINXw%2F%2FAXohD7M%3D')",
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            }
+            .bg-overlay {
+                background-color: rgba(45, 62, 54, 0.85);
+            }
+            .input-military {
+                @apply bg-dark border border-secondary text-light rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-secondary transition-all;
+            }
+            .btn-military {
+                @apply bg-secondary text-dark font-bold py-2 px-6 rounded hover:bg-opacity-80 transition-all transform hover:scale-105 active:scale-95 shadow-lg;
+            }
+            .card-military {
+                @apply bg-overlay border border-secondary rounded-lg p-6 shadow-lg backdrop-blur-sm;
+            }
+            .label-military {
+                @apply block text-secondary font-medium mb-2;
+            }
+            .select-military {
+                @apply bg-dark border border-secondary text-light rounded px-4 py-2 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-secondary;
+            }
+            .result-highlight {
+                @apply text-secondary text-2xl font-bold;
+            }
+            .animate-pulse-slow {
+                animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fadeIn {
+                animation: fadeIn 0.5s ease-out forwards;
+            }
+            .animate-delay-100 { animation-delay: 0.1s; }
+            .animate-delay-200 { animation-delay: 0.2s; }
+            .animate-delay-300 { animation-delay: 0.3s; }
+            .animate-delay-400 { animation-delay: 0.4s; }
+            .animate-delay-500 { animation-delay: 0.5s; }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-cover bg-center bg-fixed" style="background-image: url('https://p11-doubao-search-sign.byteimg.com/tos-cn-i-xv4ileqgde/e3c7b1ba10af4ff0bdcfd652f3a828b3~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&amp;x-expires=1780026276&amp;x-signature=e%2BnIMjVZT9bikqVFY%2BtnESStLV4%3D');">
+    <!-- 页面遮罩 -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-0"></div>
+    
+    <!-- 主容器 -->
+    <div class="relative z-10 container mx-auto px-4 py-8">
+        <!-- 顶部导航 -->
+        <header class="mb-8 animate-fadeIn">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/f27bbaadfc7d4ccdada7eac720fe8495~tplv-a9rns2rl98-image.image?rcl=202511301201305C1863CB8579EED54FDA&amp;rk3s=8e244e95&amp;rrcfp=2609e108&amp;x-expires=1765080094&amp;x-signature=4KqHaTNuEqAA5kEoR%2FZA1UOt8x0%3D" alt="三角洲行动" class="h-16 w-auto mr-4 rounded-lg shadow-lg">
+                    <h1 class="text-3xl md:text-4xl font-bold text-secondary text-shadow">三角洲行动租号估价系统</h1>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="themeToggle" class="btn-military flex items-center">
+                        <i class="fa fa-moon-o mr-2"></i> 切换主题
+                    </button>
+                    <button id="helpBtn" class="btn-military flex items-center">
+                        <i class="fa fa-question-circle mr-2"></i> 使用帮助
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要内容区 -->
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- 左侧：账号信息输入表单 -->
+            <div class="lg:col-span-2 animate-fadeIn animate-delay-100">
+                <div class="card-military">
+                    <h2 class="text-2xl font-bold text-secondary mb-6 flex items-center">
+                        <i class="fa fa-user-circle mr-2"></i> 账号信息
+                    </h2>
+                    <form id="valuationForm" class="space-y-6">
+                        <!-- 基础信息 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="kd" class="label-military">绝密KD</label>
+                                <input type="number" id="kd" name="kd" step="0.01" min="0" max="10" class="input-military w-full" placeholder="请输入绝密KD" required="">
+                            </div>
+                            <div>
+                                <label for="hafuCoins" class="label-military">哈夫币纯币(单位M，1M=100W)</label>
+                                <input type="number" id="hafuCoins" name="hafuCoins" min="0" class="input-military w-full" placeholder="请输入哈夫币数量" required="">
+                            </div>
+                            <div>
+                                <label for="level" class="label-military">等级</label>
+                                <input type="number" id="level" name="level" min="1" max="100" class="input-military w-full" placeholder="请输入等级" required="">
+                            </div>
+                            <div>
+                                <label for="insuranceSlots" class="label-military">保险格数</label>
+                                <select id="insuranceSlots" name="insuranceSlots" class="select-military w-full" required="">
+                                    <option value="">请选择保险格数</option>
+                                    <option value="1">1格</option>
+                                    <option value="2">2格</option>
+                                    <option value="3">3格</option>
+                                    <option value="4">4格</option>
+                                    <option value="5">5格</option>
+                                    <option value="6">6格</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 训练中心 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="stamina" class="label-military">体力(训练中心)</label>
+                                <div class="flex items-center">
+                                    <input type="range" id="stamina" name="stamina" min="0" max="100" value="0" class="w-full h-2 bg-dark rounded-lg appearance-none cursor-pointer">
+                                    <span id="staminaValue" class="ml-3 text-light min-w-[3rem] text-center">0</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="weight" class="label-military">负重(靶场等级)</label>
+                                <div class="flex items-center">
+                                    <input type="range" id="weight" name="weight" min="0" max="100" value="0" class="w-full h-2 bg-dark rounded-lg appearance-none cursor-pointer">
+                                    <span id="weightValue" class="ml-3 text-light min-w-[3rem] text-center">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 装备信息 -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label for="awmBullets" class="label-military">AWM子弹数量</label>
+                                <input type="number" id="awmBullets" name="awmBullets" min="0" class="input-military w-full" placeholder="请输入AWM信息">
+                            </div>
+                            <div>
+                                <label for="helmets" class="label-military">6头数量</label>
+                                <input type="number" id="helmets" name="helmets" min="0" class="input-military w-full" placeholder="请输入6头信息">
+                            </div>
+                            <div>
+                                <label for="armors" class="label-military">6甲数量</label>
+                                <input type="number" id="armors" name="armors" min="0" class="input-military w-full" placeholder="请输入6甲信息">
+                            </div>
+                        </div>
+
+                        <!-- 皮肤与特殊物品 -->
+                        <div>
+                            <label class="label-military">刀皮 (可多选)</label>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="knife_1" name="knifeSkin" value="赤枭" class="mr-2 accent-secondary">
+                                    <label for="knife_1" class="text-light">赤枭 (S1)</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="knife_2" name="knifeSkin" value="怜悯" class="mr-2 accent-secondary">
+                                    <label for="knife_2" class="text-light">怜悯 (S2)</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="knife_3" name="knifeSkin" value="影锋" class="mr-2 accent-secondary">
+                                    <label for="knife_3" class="text-light">影锋 (S3)</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="knife_4" name="knifeSkin" value="黑海" class="mr-2 accent-secondary">
+                                    <label for="knife_4" class="text-light">黑海 (S4)</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="knife_5" name="knifeSkin" value="北极星" class="mr-2 accent-secondary">
+                                    <label for="knife_5" class="text-light">北极星 (S5)</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="knife_6" name="knifeSkin" value="电锯惊魂" class="mr-2 accent-secondary">
+                                    <label for="knife_6" class="text-light">电锯惊魂 (S6)</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="knife_7" name="knifeSkin" value="信条" class="mr-2 accent-secondary">
+                                    <label for="knife_7" class="text-light">信条 (S7)</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                            <div>
+                                <label class="label-military">干员红皮 (可多选)</label>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="operator_1" name="operatorSkin" value="蚀金玫瑰" class="mr-2 accent-secondary">
+                                        <label for="operator_1" class="text-light">蚀金玫瑰 (红狼)</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="operator_2" name="operatorSkin" value="黑·天际线" class="mr-2 accent-secondary">
+                                        <label for="operator_2" class="text-light">黑·天际线 (露娜)</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="operator_3" name="operatorSkin" value="水墨云图" class="mr-2 accent-secondary">
+                                        <label for="operator_3" class="text-light">水墨云图 (麦晓雯)</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="operator_4" name="operatorSkin" value="维什戴尔" class="mr-2 accent-secondary">
+                                        <label for="operator_4" class="text-light">维什戴尔 (麦晓雯)</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="operator_5" name="operatorSkin" value="能天使" class="mr-2 accent-secondary">
+                                        <label for="operator_5" class="text-light">能天使 (佐娅)</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="label-military">枪皮 (可多选)</label>
+                                <div class="space-y-2 max-h-40 overflow-y-auto pr-2">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="gun_1" name="gunSkin" value="M4A1-棱镜攻势" class="mr-2 accent-secondary">
+                                        <label for="gun_1" class="text-light">M4A1-棱镜攻势 (S1)</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="gun_2" name="gunSkin" value="维克托-美杜莎" class="mr-2 accent-secondary">
+                                        <label for="gun_2" class="text-light">维克托-美杜莎 (S2)</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="gun_3" name="gunSkin" value="AK12-谍影" class="mr-2 accent-secondary">
+                                        <label for="gun_3" class="text-light">AK12-谍影 (联动)</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="gun_4" name="gunSkin" value="SV98-谍影" class="mr-2 accent-secondary">
+                                        <label for="gun_4" class="text-light">SV98-谍影 (联动)</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="gun_5" name="gunSkin" value="M1911-谍影" class="mr-2 accent-secondary">
+                                        <label for="gun_5" class="text-light">M1911-谍影 (联动)</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="gun_6" name="gunSkin" value="M249-赛伊德同款" class="mr-2 accent-secondary">
+                                        <label for="gun_6" class="text-light">M249-赛伊德同款 (Boss)</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="gun_7" name="gunSkin" value="Aug-指挥官" class="mr-2 accent-secondary">
+                                        <label for="gun_7" class="text-light">Aug-指挥官 (Boss)</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="gun_8" name="gunSkin" value="S12K-雷斯同款" class="mr-2 accent-secondary">
+                                        <label for="gun_8" class="text-light">S12K-雷斯同款 (Boss)</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="gun_9" name="gunSkin" value="M7-棱镜攻势" class="mr-2 accent-secondary">
+                                        <label for="gun_9" class="text-light">M7-棱镜攻势 (S7)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 租赁信息 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="deposit" class="label-military">押金（租客缴纳，封号赔偿用）</label>
+                                <input type="number" id="deposit" name="deposit" min="0" class="input-military w-full" placeholder="请输入押金金额">
+                            </div>
+                            <div>
+                                <label for="onlineTime" class="label-military">号主在线时间</label>
+                                <input type="text" id="onlineTime" name="onlineTime" class="input-military w-full" placeholder="请输入在线时间">
+                            </div>
+                            <div>
+                                <label for="banRecord" class="label-military">封禁记录</label>
+                                <input type="text" id="banRecord" name="banRecord" class="input-military w-full" placeholder="没有可不填写">
+                            </div>
+                            <div>
+                                <label for="rentalPeriod" class="label-military">租期（天）</label>
+                                <input type="number" id="rentalPeriod" name="rentalPeriod" min="1" class="input-military w-full" placeholder="请输入租期" required="">
+                            </div>
+                        </div>
+
+                        <!-- 联系方式 -->
+                        <div>
+                            <label for="contactNumber" class="label-military">联系号码</label>
+                            <input type="tel" id="contactNumber" name="contactNumber" class="input-military w-full" placeholder="请输入联系号码" required="">
+                        </div>
+
+                        <!-- 提交按钮 -->
+                        <div class="flex justify-center mt-8">
+                            <button type="submit" id="submitBtn" class="btn-military text-lg flex items-center">
+                                <i class="fa fa-calculator mr-2"></i> 开始估价
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 右侧：估价结果 -->
+            <div class="lg:col-span-1 animate-fadeIn animate-delay-200">
+                <div class="card-military h-full flex flex-col">
+                    <h2 class="text-2xl font-bold text-secondary mb-6 flex items-center">
+                        <i class="fa fa-line-chart mr-2"></i> 估价结果
+                    </h2>
+                    
+                    <!-- 估价结果区域 -->
+                    <div id="resultArea" class="flex-grow flex flex-col justify-between">
+                        <!-- 初始状态 -->
+                        <div id="initialState" class="flex-grow flex flex-col items-center justify-center text-center">
+                            <img src="https://p11-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/ecd78d0ba8134c61827c2f231fb8a4b9.png~tplv-a9rns2rl98-24:720:720.png?rcl=20251130120006B41493E56C51FE0FE500&amp;rk3s=8e244e95&amp;rrcfp=8a172a1a&amp;x-expires=1765080007&amp;x-signature=WTakpIfKCQ9MNQin1QZ6KpFBmA0%3D" alt="三角洲行动" class="w-48 h-48 object-cover rounded-full mb-6 shadow-lg">
+                            <p class="text-light text-lg mb-4">请填写左侧表单信息</p>
+                            <p class="text-secondary text-xl font-bold">开始您的账号估价</p>
+                        </div>
+                        
+                        <!-- 加载状态 -->
+                        <div id="loadingState" class="hidden flex-grow flex flex-col items-center justify-center">
+                            <div class="w-16 h-16 border-4 border-secondary border-t-transparent rounded-full animate-spin mb-6"></div>
+                            <p class="text-secondary text-xl font-bold animate-pulse-slow">正在分析账号价值...</p>
+                        </div>
+                        
+                        <!-- 结果状态 -->
+                        <div id="resultState" class="hidden flex-grow flex flex-col justify-between">
+                            <!-- 租金比例和预估租金 -->
+                            <div class="mb-6">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-light">租金比例</span>
+                                    <span id="rentalRate" class="result-highlight">0%</span>
+                                </div>
+                                <div class="w-full bg-dark rounded-full h-2.5">
+                                    <div id="rentalRateBar" class="bg-secondary h-2.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-light">预估租金</span>
+                                    <span id="estimatedRent" class="result-highlight">¥0</span>
+                                </div>
+                                <div class="w-full bg-dark rounded-full h-2.5">
+                                    <div id="estimatedRentBar" class="bg-secondary h-2.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- 价格趋势图 -->
+                            <div class="mb-6">
+                                <h3 class="text-secondary font-bold mb-3">价格趋势</h3>
+                                <div class="bg-dark bg-opacity-50 rounded-lg p-2">
+                                    <canvas id="priceChart" height="200"></canvas>
+                                </div>
+                            </div>
+                            
+                            <!-- AI分析结果 -->
+                            <div class="mt-6">
+                                <h3 class="text-secondary font-bold mb-3 flex items-center">
+                                    <i class="fa fa-robot mr-2"></i> AI智能分析
+                                </h3>
+                                <div id="aiAnalysis" class="bg-dark bg-opacity-50 rounded-lg p-4 text-light">
+                                    <!-- AI分析内容将在这里动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 底部信息 -->
+        <footer class="mt-12 text-center text-light animate-fadeIn animate-delay-300">
+            <p class="mb-2">© 2025 三角洲行动租号估价系统 - 专业游戏账号评估平台</p>
+            <p class="text-sm opacity-70">本系统仅供参考，实际价格可能因市场波动而有所不同</p>
+        </footer>
+    </div>
+
+    <!-- 帮助模态框 -->
+    <div id="helpModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-75"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl">
+            <div class="card-military">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-secondary">使用帮助</h2>
+                    <button id="closeHelpBtn" class="text-light hover:text-secondary text-2xl">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+                <div class="space-y-4 text-light">
+                    <div>
+                        <h3 class="text-xl font-bold text-secondary mb-2">什么是KD？</h3>
+                        <p>KD是Kill/Death Ratio的缩写，表示击杀与死亡的比率，是衡量玩家技术水平的重要指标。</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-secondary mb-2">哈夫币是什么？</h3>
+                        <p>哈夫币是《三角洲行动》游戏内的虚拟货币，用于购买装备、武器和其他游戏内物品。</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-secondary mb-2">如何提高账号估值？</h3>
+                        <p>提高等级、增加哈夫币数量、提升训练中心等级、拥有稀有皮肤和装备都可以提高账号估值。</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-secondary mb-2">租金比例如何计算？</h3>
+                        <p>租金比例根据保险系数、体力、负重等多项指标综合计算，影响最终的预估租金。</p>
+                    </div>
+                </div>
+                <div class="mt-8 text-center">
+                    <button id="closeHelpBtn2" class="btn-military">
+                        我知道了
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM元素
+        const valuationForm = document.getElementById('valuationForm');
+        const initialState = document.getElementById('initialState');
+        const loadingState = document.getElementById('loadingState');
+        const resultState = document.getElementById('resultState');
+        const rentalRate = document.getElementById('rentalRate');
+        const rentalRateBar = document.getElementById('rentalRateBar');
+        const estimatedRent = document.getElementById('estimatedRent');
+        const estimatedRentBar = document.getElementById('estimatedRentBar');
+        const aiAnalysis = document.getElementById('aiAnalysis');
+        const helpBtn = document.getElementById('helpBtn');
+        const helpModal = document.getElementById('helpModal');
+        const closeHelpBtn = document.getElementById('closeHelpBtn');
+        const closeHelpBtn2 = document.getElementById('closeHelpBtn2');
+        const themeToggle = document.getElementById('themeToggle');
+        const staminaInput = document.getElementById('stamina');
+        const staminaValue = document.getElementById('staminaValue');
+        const weightInput = document.getElementById('weight');
+        const weightValue = document.getElementById('weightValue');
+        
+        // 全局变量
+        let isDarkTheme = true;
+        let priceChart = null;
+        
+        // 初始化
+        function init() {
+            // 设置滑块初始值
+            staminaValue.textContent = staminaInput.value;
+            weightValue.textContent = weightInput.value;
+            
+            // 事件监听
+            valuationForm.addEventListener('submit', handleFormSubmit);
+            helpBtn.addEventListener('click', showHelpModal);
+            closeHelpBtn.addEventListener('click', hideHelpModal);
+            closeHelpBtn2.addEventListener('click', hideHelpModal);
+            themeToggle.addEventListener('click', toggleTheme);
+            staminaInput.addEventListener('input', updateStaminaValue);
+            weightInput.addEventListener('input', updateWeightValue);
+            
+            // 初始化图表
+            initChart();
+        }
+        
+        // 更新体力值显示
+        function updateStaminaValue() {
+            staminaValue.textContent = staminaInput.value;
+        }
+        
+        // 更新负重值显示
+        function updateWeightValue() {
+            weightValue.textContent = weightInput.value;
+        }
+        
+        // 处理表单提交
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            // 显示加载状态
+            initialState.classList.add('hidden');
+            resultState.classList.add('hidden');
+            loadingState.classList.remove('hidden');
+            
+            // 模拟API请求延迟
+            setTimeout(() => {
+                // 获取表单数据
+                const formData = new FormData(valuationForm);
+                
+                // 获取多选框数据
+                const knifeSkins = Array.from(document.querySelectorAll('input[name="knifeSkin"]:checked')).map(cb => cb.value);
+                const operatorSkins = Array.from(document.querySelectorAll('input[name="operatorSkin"]:checked')).map(cb => cb.value);
+                const gunSkins = Array.from(document.querySelectorAll('input[name="gunSkin"]:checked')).map(cb => cb.value);
+                
+                const data = {
+                    kd: parseFloat(formData.get('kd')),
+                    hafuCoins: parseFloat(formData.get('hafuCoins')),
+                    level: parseInt(formData.get('level')),
+                    insuranceSlots: parseInt(formData.get('insuranceSlots')),
+                    stamina: parseInt(formData.get('stamina')),
+                    weight: parseInt(formData.get('weight')),
+                    awmBullets: parseInt(formData.get('awmBullets') || 0),
+                    helmets: parseInt(formData.get('helmets') || 0),
+                    armors: parseInt(formData.get('armors') || 0),
+                    knifeSkins: knifeSkins,
+                    operatorSkins: operatorSkins,
+                    gunSkins: gunSkins,
+                    deposit: parseFloat(formData.get('deposit') || 0),
+                    rentalPeriod: parseInt(formData.get('rentalPeriod'))
+                };
+                
+                // 计算估价结果
+                const result = calculateValuation(data);
+                
+                // 更新UI显示结果
+                updateResultUI(result, data);
+                
+                // 隐藏加载状态，显示结果
+                loadingState.classList.add('hidden');
+                resultState.classList.remove('hidden');
+                
+                // 更新图表
+                updateChart(result);
+                
+            }, 2000);
+        }
+        
+        // 计算估价结果
+        function calculateValuation(data) {
+            // 基础租金比例计算 - 严格按照参考网站逻辑
+            let baseRentalRate = 70; // 基础租金比例
+            
+            // 根据保险格数调整
+            baseRentalRate += (data.insuranceSlots - 3) * 2;
+            
+            // 根据体力和负重调整
+            baseRentalRate += data.stamina * 0.1;
+            baseRentalRate += data.weight * 0.1;
+            
+            // 刀皮调整 - 参考网站明确说明刀皮使回收比例-1%，基于拥有的刀皮数量
+            if (data.knifeSkins.length > 0) {
+                baseRentalRate -= data.knifeSkins.length;
+            }
+            
+            // 确保租金比例在合理范围内
+            baseRentalRate = Math.max(50, Math.min(95, baseRentalRate));
+            
+            // 计算预估租金 - 严格按照参考网站公式：哈夫币纯币 * 租金比例
+            // 参考网站显示"回收租金（根据哈夫币纯币、比例计算得出）"
+            let estimatedRentValue = data.hafuCoins * (baseRentalRate / 100);
+            
+            // 稀有物品额外价值
+            const rareItemValue = (data.awmBullets * 0.5) + (data.helmets * 2) + (data.armors * 3);
+            estimatedRentValue += rareItemValue;
+            
+            // 干员红皮额外价值 - 基于拥有的红皮数量，每个增加5%
+            if (data.operatorSkins.length > 0) {
+                const operatorMultiplier = 1 + (data.operatorSkins.length * 0.05);
+                estimatedRentValue *= operatorMultiplier;
+            }
+            
+            // 枪皮额外价值 - 基于拥有的枪皮数量，每个增加2%
+            if (data.gunSkins.length > 0) {
+                const gunMultiplier = 1 + (data.gunSkins.length * 0.02);
+                estimatedRentValue *= gunMultiplier;
+            }
+            
+            // 四舍五入到整数
+            estimatedRentValue = Math.round(estimatedRentValue);
+            
+            return {
+                rentalRate: baseRentalRate.toFixed(1),
+                estimatedRent: estimatedRentValue,
+                baseRentalRate: baseRentalRate.toFixed(1),
+                rareItemValue: rareItemValue
+            };
+        }
+        
+        // 更新结果UI
+        function updateResultUI(result, data) {
+            // 更新租金比例
+            rentalRate.textContent = `${result.rentalRate}%`;
+            rentalRateBar.style.width = `${result.rentalRate}%`;
+            
+            // 更新预估租金
+            estimatedRent.textContent = `¥${result.estimatedRent}`;
+            const rentPercentage = Math.min(100, (result.estimatedRent / (data.hafuCoins * 1.5)) * 100);
+            estimatedRentBar.style.width = `${rentPercentage}%`;
+            
+            // 生成AI分析内容
+            generateAIAnalysis(result, data);
+            
+            // 打印调试信息
+            console.log('Form Data:', data);
+            console.log('Calculation Result:', result);
+        }
+        
+        // 生成AI分析内容
+        function generateAIAnalysis(result, data) {
+            let analysisHTML = '';
+            
+            // 基础分析
+            analysisHTML += `<p class="mb-3">根据您提供的账号信息，我们的AI系统进行了全面分析：</p>`;
+            
+            // KD分析 - 虽然KD不直接影响租金计算，但作为账号质量参考
+            if (data.kd >= 3) {
+                analysisHTML += `<p class="mb-2"><span class="text-green-400">✓</span> <strong>KD值优秀</strong> (${data.kd})：您的技术水平高于平均水平，账号整体质量优秀。</p>`;
+            } else if (data.kd >= 2) {
+                analysisHTML += `<p class="mb-2"><span class="text-green-400">✓</span> <strong>KD值良好</strong> (${data.kd})：您的技术水平良好，账号质量不错。</p>`;
+            } else if (data.kd >= 1) {
+                analysisHTML += `<p class="mb-2"><span class="text-yellow-400">⚠</span> <strong>KD值一般</strong> (${data.kd})：技术水平处于平均水平。</p>`;
+            } else {
+                analysisHTML += `<p class="mb-2"><span class="text-red-400">✗</span> <strong>KD值较低</strong> (${data.kd})：建议提升游戏技术，虽然不影响租金，但会影响账号整体评价。</p>`;
+            }
+            
+            // 等级分析 - 虽然等级不直接影响租金计算，但作为账号质量参考
+            if (data.level >= 80) {
+                analysisHTML += `<p class="mb-2"><span class="text-green-400">✓</span> <strong>等级很高</strong> (${data.level})：高级账号，解锁了大部分游戏内容，账号整体质量优秀。</p>`;
+            } else if (data.level >= 50) {
+                analysisHTML += `<p class="mb-2"><span class="text-green-400">✓</span> <strong>等级良好</strong> (${data.level})：账号已解锁大部分功能，账号质量不错。</p>`;
+            } else if (data.level >= 30) {
+                analysisHTML += `<p class="mb-2"><span class="text-yellow-400">⚠</span> <strong>等级一般</strong> (${data.level})：账号处于成长阶段。</p>`;
+            } else {
+                analysisHTML += `<p class="mb-2"><span class="text-red-400">✗</span> <strong>等级较低</strong> (${data.level})：建议继续提升等级，虽然不影响租金，但会影响账号整体评价。</p>`;
+            }
+            
+            // 哈夫币分析
+            if (data.hafuCoins >= 100) {
+                analysisHTML += `<p class="mb-2"><span class="text-green-400">✓</span> <strong>哈夫币充足</strong> (${data.hafuCoins}M)：资金充足，可购买大量装备。</p>`;
+            } else if (data.hafuCoins >= 50) {
+                analysisHTML += `<p class="mb-2"><span class="text-yellow-400">⚠</span> <strong>哈夫币一般</strong> (${data.hafuCoins}M)：资金适中，可满足基本需求。</p>`;
+            } else {
+                analysisHTML += `<p class="mb-2"><span class="text-red-400">✗</span> <strong>哈夫币较少</strong> (${data.hafuCoins}M)：建议增加游戏时间获取更多资源。</p>`;
+            }
+            
+            // 稀有物品分析
+            if (result.rareItemValue > 0) {
+                analysisHTML += `<p class="mb-2"><span class="text-green-400">✓</span> <strong>稀有物品价值</strong>：您的AWM子弹、6级头甲为账号增加了¥${result.rareItemValue}的价值。</p>`;
+            }
+            
+            // 皮肤分析 - 多选版本
+            const totalSkins = data.knifeSkins.length + data.operatorSkins.length + data.gunSkins.length;
+            
+            if (totalSkins >= 5) {
+                analysisHTML += `<p class="mb-2"><span class="text-green-400">✓</span> <strong>皮肤收藏丰富</strong>：拥有${totalSkins}个皮肤，账号外观价值显著提升。</p>`;
+            } else if (totalSkins >= 2) {
+                analysisHTML += `<p class="mb-2"><span class="text-yellow-400">⚠</span> <strong>皮肤收藏良好</strong>：拥有${totalSkins}个皮肤，有一定的收藏价值。</p>`;
+            } else if (totalSkins === 1) {
+                analysisHTML += `<p class="mb-2"><span class="text-yellow-400">⚠</span> <strong>少量稀有皮肤</strong>：拥有${totalSkins}个皮肤，可考虑收集更多提升账号价值。</p>`;
+            }
+            
+            // 特殊皮肤详细分析
+            if (data.knifeSkins.length > 0) {
+                const knifeSkinNames = data.knifeSkins.join('、');
+                analysisHTML += `<p class="mb-2 pl-4 italic text-gray-300">• 刀皮收藏 (${data.knifeSkins.length}个)：${knifeSkinNames}</p>`;
+                
+                // 特殊刀皮评价
+                if (data.knifeSkins.includes('北极星')) {
+                    analysisHTML += `<p class="mb-2 pl-6 italic text-gray-300">- 北极星作为当前版本最强刀皮，为账号增添了极高的收藏价值</p>`;
+                }
+                if (data.knifeSkins.includes('赤枭')) {
+                    analysisHTML += `<p class="mb-2 pl-6 italic text-gray-300">- 赤枭作为S1赛季限定刀皮，稀有度极高，是传家宝级别的收藏品</p>`;
+                }
+            }
+            
+            if (data.operatorSkins.length > 0) {
+                const operatorSkinNames = data.operatorSkins.join('、');
+                analysisHTML += `<p class="mb-2 pl-4 italic text-gray-300">• 干员红皮 (${data.operatorSkins.length}个)：${operatorSkinNames}</p>`;
+                
+                // 特殊红皮评价
+                if (data.operatorSkins.includes('蚀金玫瑰')) {
+                    analysisHTML += `<p class="mb-2 pl-6 italic text-gray-300">- 蚀金玫瑰作为游戏中最顶级的红皮，大幅提升了账号的高端感</p>`;
+                }
+            }
+            
+            if (data.gunSkins.length > 0) {
+                const gunSkinNames = data.gunSkins.join('、');
+                analysisHTML += `<p class="mb-2 pl-4 italic text-gray-300">• 枪皮收藏 (${data.gunSkins.length}个)：${gunSkinNames}</p>`;
+                
+                // Boss认证箱皮肤评价
+                const bossSkins = data.gunSkins.filter(skin => skin.includes('同款'));
+                if (bossSkins.length > 0) {
+                    analysisHTML += `<p class="mb-2 pl-6 italic text-gray-300">- 您拥有${bossSkins.length}个Boss认证箱皮肤，这些皮肤极其稀有，无法购买，极大提升了账号价值</p>`;
+                }
+            }
+            
+            // 保险格数分析
+            if (data.insuranceSlots >= 5) {
+                analysisHTML += `<p class="mb-2"><span class="text-green-400">✓</span> <strong>保险格数充足</strong> (${data.insuranceSlots}格)：可保护更多贵重物品。</p>`;
+            } else if (data.insuranceSlots >= 3) {
+                analysisHTML += `<p class="mb-2"><span class="text-yellow-400">⚠</span> <strong>保险格数一般</strong> (${data.insuranceSlots}格)：基本满足保护需求。</p>`;
+            } else {
+                analysisHTML += `<p class="mb-2"><span class="text-red-400">✗</span> <strong>保险格数较少</strong> (${data.insuranceSlots}格)：建议增加保险格数以提高物品生存率。</p>`;
+            }
+            
+            // 训练中心分析
+            if (data.stamina >= 80 && data.weight >= 80) {
+                analysisHTML += `<p class="mb-2"><span class="text-green-400">✓</span> <strong>训练中心等级优秀</strong>：体力(${data.stamina})和负重(${data.weight})均已高度开发，账号能力全面。</p>`;
+            } else if (data.stamina >= 50 && data.weight >= 50) {
+                analysisHTML += `<p class="mb-2"><span class="text-yellow-400">⚠</span> <strong>训练中心等级良好</strong>：体力(${data.stamina})和负重(${data.weight})有一定基础，仍有提升空间。</p>`;
+            } else {
+                analysisHTML += `<p class="mb-2"><span class="text-red-400">✗</span> <strong>训练中心等级较低</strong>：建议提升体力(${data.stamina})和负重(${data.weight})以增强账号能力。</p>`;
+            }
+            
+            // 最终建议
+            analysisHTML += `<div class="mt-4 p-3 bg-secondary bg-opacity-20 rounded-lg">`;
+            analysisHTML += `<p class="font-bold text-secondary">AI最终建议：</p>`;
+            
+            if (result.rentalRate >= 85) {
+                analysisHTML += `<p>您的账号质量优秀，租金比例高达${result.rentalRate}%，非常适合出租。建议保持当前账号状态，可获得稳定的租金收入。</p>`;
+            } else if (result.rentalRate >= 70) {
+                analysisHTML += `<p>您的账号质量良好，租金比例为${result.rentalRate}%，具有不错的出租价值。建议提升训练中心等级和体力负重以进一步提高账号价值。</p>`;
+            } else {
+                analysisHTML += `<p>您的账号租金比例为${result.rentalRate}%，有较大提升空间。建议增加游戏时间，提升体力和负重等级，收集更多稀有物品和皮肤。</p>`;
+            }
+            
+            // 针对皮肤收藏的建议
+            if (data.knifeSkins.length === 0) {
+                analysisHTML += `<p class="mt-2">• 建议至少获取一个刀皮，虽然会降低租金比例，但能显著提升账号吸引力</p>`;
+            } else if (data.knifeSkins.length > 0 && !data.knifeSkins.includes('北极星')) {
+                analysisHTML += `<p class="mt-2">• 北极星作为当前版本最强刀皮，建议优先获取</p>`;
+            }
+            
+            if (data.operatorSkins.length === 0) {
+                analysisHTML += `<p class="mt-2">• 干员红皮能显著提升账号价值，建议优先考虑蚀金玫瑰或水墨云图</p>`;
+            } else if (data.operatorSkins.length > 0 && !data.operatorSkins.includes('蚀金玫瑰')) {
+                analysisHTML += `<p class="mt-2">• 蚀金玫瑰作为最顶级的红皮，是提升账号价值的最佳选择</p>`;
+            }
+            
+            analysisHTML += `</div>`;
+            
+            // 更新AI分析内容
+            aiAnalysis.innerHTML = analysisHTML;
+        }
+        
+        // 初始化图表
+        function initChart() {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            
+            // 销毁现有图表（如果存在）
+            if (priceChart) {
+                priceChart.destroy();
+            }
+            
+            // 创建新图表
+            priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    datasets: [{
+                        label: '哈夫币价格趋势',
+                        data: [0.7, 0.75, 0.8, 0.85, 0.82, 0.8],
+                        borderColor: '#D4AF37',
+                        backgroundColor: 'rgba(212, 175, 55, 0.2)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 26, 26, 0.8)',
+                            titleColor: '#D4AF37',
+                            bodyColor: '#F5F5DC',
+                            borderColor: '#D4AF37',
+                            borderWidth: 1,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `价格: ¥${context.parsed.y}/M`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#F5F5DC'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#F5F5DC',
+                                callback: function(value) {
+                                    return '¥' + value;
+                                }
+                            },
+                            min: 0.6
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 更新图表
+        function updateChart(result) {
+            // 基于当前预估租金生成模拟数据
+            const baseValue = result.estimatedRent / 100;
+            const randomFactor = () => 0.9 + Math.random() * 0.2; // 0.9 到 1.1 之间的随机数
+            
+            // 更新图表数据
+            priceChart.data.datasets[0].data = [
+                baseValue * 0.8 * randomFactor(),
+                baseValue * 0.9 * randomFactor(),
+                baseValue * 0.95 * randomFactor(),
+                baseValue * randomFactor(),
+                baseValue * 1.05 * randomFactor(),
+                baseValue * randomFactor()
+            ];
+            
+            // 更新图表
+            priceChart.update();
+        }
+        
+        // 显示帮助模态框
+        function showHelpModal() {
+            helpModal.classList.remove('hidden');
+        }
+        
+        // 隐藏帮助模态框
+        function hideHelpModal() {
+            helpModal.classList.add('hidden');
+        }
+        
+        // 切换主题
+        function toggleTheme() {
+            isDarkTheme = !isDarkTheme;
+            
+            const body = document.body;
+            const overlay = document.querySelector('.bg-overlay');
+            
+            if (isDarkTheme) {
+                // 深色主题
+                body.style.backgroundImage = "url('https://p11-doubao-search-sign.byteimg.com/tos-cn-i-xv4ileqgde/e3c7b1ba10af4ff0bdcfd652f3a828b3~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1780026276&x-signature=e%2BnIMjVZT9bikqVFY%2BtnESStLV4%3D')";
+                overlay.classList.add('bg-overlay');
+                themeToggle.innerHTML = '<i class="fa fa-moon-o mr-2"></i> 切换主题';
+            } else {
+                // 浅色主题
+                body.style.backgroundImage = "url('https://p3-doubao-search-sign.byteimg.com/ecom-shop-material/rigyfuqt_m_9da27d422234d216227d2579f588a3a1_sx_594822_www800-800~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1780026276&x-signature=OvpTWwe1%2BCSieJINXw%2F%2FAXohD7M%3D')";
+                overlay.classList.remove('bg-overlay');
+                overlay.classList.add('bg-opacity-90');
+                overlay.classList.add('bg-primary');
+                themeToggle.innerHTML = '<i class="fa fa-sun-o mr-2"></i> 切换主题';
+            }
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+
+</body></html>
